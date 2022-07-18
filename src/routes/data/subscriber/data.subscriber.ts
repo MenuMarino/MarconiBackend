@@ -12,6 +12,7 @@ class DataSubscriber {
       });
       if (!data) {
         let auxObj = {};
+        auxObj['views'] = 1;
         for (let [key, value] of Object.entries(info)) {
           if (typeof value === 'boolean') {
             auxObj[key] = value ? 1 : 0;
@@ -33,6 +34,7 @@ class DataSubscriber {
             data.info[key] += value;
           }
         }
+        data.info['views'] += 1;
         data.markModified('info');
         await data.save();
       }
