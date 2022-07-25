@@ -7,6 +7,7 @@ class DataSubscriber {
   async onSubmit(body: any) {
     try {
       const { pageId, info } = body;
+      logger.info(`PageId: ${pageId}. Body: ${JSON.stringify(body)}`);
       const data = await DataModel.findOne({
         pageId,
       });
@@ -14,6 +15,7 @@ class DataSubscriber {
         let auxObj = {};
         auxObj['views'] = 1;
         for (let [key, value] of Object.entries(info)) {
+          key = key.toLowerCase();
           if (typeof value === 'boolean') {
             auxObj[key] = value ? 1 : 0;
           } else {
@@ -28,10 +30,20 @@ class DataSubscriber {
         await newData.save();
       } else {
         for (let [key, value] of Object.entries(info)) {
-          if (typeof value === 'boolean') {
-            data.info[key] = data.info[key] + (value ? 1 : 0);
+          key = key.toLowerCase();
+          if (data.info[key] === undefined) {
+            if (typeof value === 'boolean') {
+              data.info[key] = value ? 1 : 0;
+            } else {
+              // Number
+              data.info[key] = value;
+            }
           } else {
-            data.info[key] += value;
+            if (typeof value === 'boolean') {
+              data.info[key] = data.info[key] + (value ? 1 : 0);
+            } else {
+              data.info[key] += value;
+            }
           }
         }
         data.info['views'] += 1;
